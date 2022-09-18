@@ -1,5 +1,7 @@
 package com.github.catvod.spider;
 
+import android.util.Log;
+
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.utils.Misc;
 
@@ -12,6 +14,7 @@ import java.util.List;
  * Author: @SDL
  */
 public class PushAgent extends Spider {
+    String Tag = "PushAgent";
     @Override
     public String detailContent(List<String> ids) {
         try {
@@ -63,7 +66,7 @@ public class PushAgent extends Spider {
                 return result.toString();
             }
         } catch (Throwable throwable) {
-
+            Log.e(Tag, "detailContent: ", throwable);
         }
         return "";
     }
@@ -91,7 +94,7 @@ public class PushAgent extends Spider {
                 return result.toString();
             }
         } catch (Throwable throwable) {
-
+            Log.e(Tag, "playerContent: ", throwable);
         }
         return "";
     }

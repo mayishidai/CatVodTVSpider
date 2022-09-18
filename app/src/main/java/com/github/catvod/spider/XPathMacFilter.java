@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+/*
+和Xpath区别是，支持extend匹配筛选
+ */
 public class XPathMacFilter extends XPathMac {
     @Override
     protected String categoryUrl(String tid, String pg, boolean filter, HashMap<String, String> extend) {

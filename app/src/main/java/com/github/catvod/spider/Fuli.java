@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-public class XPath extends Spider {
+public class Fuli extends XPath {
 
     @Override
     public void init(Context context) {
@@ -83,7 +83,7 @@ public class XPath extends Spider {
                                     mark = vodNodes.get(i).selOne(rule.getHomeVodMark()).asString().trim();
                                     mark = rule.getHomeVodMarkR(mark);
                                 } catch (Exception e) {
-                                    SpiderDebug.log(e);
+                                    SpiderDebug.log("homeContent"+e);
                                 }
                             }
                             JSONObject v = new JSONObject();
@@ -95,11 +95,11 @@ public class XPath extends Spider {
                         }
                         result.put("list", videos);
                     } catch (Exception e) {
-                        SpiderDebug.log(e);
+                        SpiderDebug.log("homeContent"+e);
                     }
                 }
             } catch (Exception e) {
-                SpiderDebug.log(e);
+                SpiderDebug.log("homeContent"+e);
             }
             result.put("class", classes);
             if (filter && rule.getFilter() != null) {
@@ -108,7 +108,7 @@ public class XPath extends Spider {
             return result.toString();
         } catch (
                 Exception e) {
-            SpiderDebug.log(e);
+            SpiderDebug.log("homeContent"+e);
         }
         return "";
     }
@@ -126,7 +126,7 @@ public class XPath extends Spider {
         try {
             fetchRule();
         } catch (Exception e) {
-            SpiderDebug.log(e);
+            SpiderDebug.log("homeVideoContent"+e);
         }
         return "";
     }
@@ -139,7 +139,7 @@ public class XPath extends Spider {
                 url = url.replace(String.format("{%s}", key), extend.get(key));
             }
         }
-        SpiderDebug.log(String.format("categoryUrl -> url: %s", url));
+        SpiderDebug.log("categoryUrl"+String.format("categoryUrl -> url: %s", url));
         return url;
     }
 
@@ -165,7 +165,7 @@ public class XPath extends Spider {
                         mark = vodNodes.get(i).selOne(rule.getCateVodMark()).asString().trim();
                         mark = rule.getCateVodMarkR(mark);
                     } catch (Exception e) {
-                        SpiderDebug.log(e);
+                        SpiderDebug.log("categoryContent:"+e);
                     }
                 }
                 JSONObject v = new JSONObject();
@@ -183,7 +183,7 @@ public class XPath extends Spider {
             result.put("list", videos);
             return result.toString();
         } catch (Exception e) {
-            SpiderDebug.log(e);
+            SpiderDebug.log("categoryContent:"+e);
         }
         return "";
     }
@@ -287,24 +287,28 @@ public class XPath extends Spider {
                 name = rule.getDetailFromNameR(name);
                 playFrom.add(name);
             }
-
             ArrayList<String> playList = new ArrayList<>();
-            List<JXNode> urlListNodes = doc.selN(rule.getDetailUrlNode());
-            for (int i = 0; i < urlListNodes.size(); i++) {
-                List<JXNode> urlNodes = urlListNodes.get(i).sel(rule.getDetailUrlSubNode());
-                List<String> vodItems = new ArrayList<>();
-                for (int j = 0; j < urlNodes.size(); j++) {
-                    String name = urlNodes.get(j).selOne(rule.getDetailUrlName()).asString().trim();
-                    name = rule.getDetailUrlNameR(name);
-                    String id = urlNodes.get(j).selOne(rule.getDetailUrlId()).asString().trim();
-                    id = rule.getDetailUrlIdR(id);
-                    vodItems.add(name + "$" + id);
+            if (webUrl.contains("wzk666.xyz")) {
+                playFrom.add("自定义");
+                playList.add(String.format("正片$%s", ids.get(0)));
+            }else {
+                List<JXNode> urlListNodes = doc.selN(rule.getDetailUrlNode());
+                for (int i = 0; i < urlListNodes.size(); i++) {
+                    List<JXNode> urlNodes = urlListNodes.get(i).sel(rule.getDetailUrlSubNode());
+                    List<String> vodItems = new ArrayList<>();
+                    for (int j = 0; j < urlNodes.size(); j++) {
+                        String name = urlNodes.get(j).selOne(rule.getDetailUrlName()).asString().trim();
+                        name = rule.getDetailUrlNameR(name);
+                        String id = urlNodes.get(j).selOne(rule.getDetailUrlId()).asString().trim();
+                        id = rule.getDetailUrlIdR(id);
+                        vodItems.add(name + "$" + id);
+                    }
+                    // 排除播放列表为空的播放源
+                    if (vodItems.size() == 0 && playFrom.size() > i) {
+                        playFrom.set(i, "");
+                    }
+                    playList.add(TextUtils.join("#", vodItems));
                 }
-                // 排除播放列表为空的播放源
-                if (vodItems.size() == 0 && playFrom.size() > i) {
-                    playFrom.set(i, "");
-                }
-                playList.add(TextUtils.join("#", vodItems));
             }
             // 排除播放列表为空的播放源
             for (int i = playFrom.size() - 1; i >= 0; i--) {
@@ -330,6 +334,7 @@ public class XPath extends Spider {
             JSONArray list = new JSONArray();
             list.put(vod);
             result.put("list", list);
+            SpiderDebug.log("detailContent: "+result.toString());
             return result.toString();
         } catch (Exception e) {
             SpiderDebug.log(e);
@@ -342,7 +347,7 @@ public class XPath extends Spider {
         try {
             fetchRule();
             String webUrl = rule.getPlayUrl().isEmpty() ? id : rule.getPlayUrl().replace("{playUrl}", id);
-            SpiderDebug.log(webUrl);
+            SpiderDebug.log("playerContent: "+ webUrl);
             JSONObject result = new JSONObject();
             result.put("parse", 1);
             result.put("playUrl", "");
@@ -352,7 +357,7 @@ public class XPath extends Spider {
             result.put("url", webUrl);
             return result.toString();
         } catch (Exception e) {
-            SpiderDebug.log(e);
+            SpiderDebug.log("playerContent: "+e);
         }
         return "";
     }
@@ -414,7 +419,7 @@ public class XPath extends Spider {
                             mark = vodNodes.get(i).selOne(rule.getSearchVodMark()).asString().trim();
                             mark = rule.getSearchVodMarkR(mark);
                         } catch (Exception e) {
-                            SpiderDebug.log(e);
+                            SpiderDebug.log("searchContent: "+e);
                         }
                     }
                     JSONObject v = new JSONObject();
@@ -429,7 +434,7 @@ public class XPath extends Spider {
             return result.toString();
         } catch (
                 Exception e) {
-            SpiderDebug.log(e);
+            SpiderDebug.log("searchContent: "+e);
         }
         return "";
     }
@@ -478,7 +483,7 @@ public class XPath extends Spider {
     }
 
     protected String fetch(String webUrl) {
-        SpiderDebug.log(webUrl);
+        SpiderDebug.log("fetch: "+webUrl);
         return OkHttpUtil.string(webUrl, getHeaders(webUrl));
     }
 }
